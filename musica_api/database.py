@@ -10,12 +10,11 @@ from musica_api.config import get_settings
 settings = get_settings()
 
 # Crear el engine de la base de datos
-# connect_args solo se necesita para SQLite
 connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
 
 engine = create_engine(
     settings.database_url,
-    echo=settings.debug,  # Muestra las queries SQL en consola si debug=True
+    echo=settings.debug,
     connect_args=connect_args
 )
 
