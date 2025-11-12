@@ -2,10 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
-from app.database import create_db_and_tables
-from app.routers import usuarios, peliculas, favoritos
-
-# TODO: Importar la configuración desde app.config
+from musica_api.database import create_db_and_tables
+from musica_api.routers import usuarios, canciones, favoritos
+from musica_api.config import settings
 
 
 @asynccontextmanager
@@ -23,31 +22,36 @@ async def lifespan(app: FastAPI):
 
 
 # Crear la instancia de FastAPI con metadatos apropiados
-# Incluir: title, description, version, contact, license_info
 app = FastAPI(
-    title="API de Películas",
-    description="API RESTful para gestionar usuarios, películas y favoritos",
-    version="1.0.0",
+    title=settings.app_name,
+    description="API RESTful para gestionar usuarios, canciones y favoritos. Desarrollada con FastAPI, SQLModel y Pydantic.",
+    version=settings.app_version,
     lifespan=lifespan,
-    # TODO: Agregar información de contacto y licencia
-
+    contact={
+        "name": "Equipo de Desarrollo",
+        "email": "contacto@musicapi.com",
+    },
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT",
+    },
 )
 
 
 # Configurar CORS para permitir solicitudes desde diferentes orígenes
-# Esto es importante para desarrollo con frontend separado
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especificar orígenes permitidos
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# TODO: Incluir los routers de usuarios, canciones y favoritos
-# Ejemplo:
-# app.include_router(usuarios.router, prefix="/api/usuarios", tags=["Usuarios"])
+# Incluir los routers de la aplicación
+app.include_router(usuarios.router, prefix="/api/usuarios", tags=["Usuarios"])
+app.include_router(canciones.router, prefix="/api/canciones", tags=["Canciones"])
+app.include_router(favoritos.router, prefix="/api/favoritos", tags=["Favoritos"])
 
 
 # Crear un endpoint raíz que retorne información básica de la API
@@ -58,7 +62,18 @@ async def root():
     Retorna información básica y enlaces a la documentación.
     """
     return {
-        # TODO: Agregar información 
+        "nombre": settings.app_name,
+        "version": settings.app_version,
+        "descripcion": "API RESTful para gestionar usuarios, canciones y favoritos",
+        "documentacion": {
+            "swagger": "/docs",
+            "redoc": "/redoc"
+        },
+        "endpoints": {
+            "usuarios": "/api/usuarios",
+            "canciones": "/api/canciones",
+            "favoritos": "/api/favoritos"
+        }
     }
 
 
@@ -69,10 +84,19 @@ async def health_check():
     Health check endpoint para verificar el estado de la API.
     Útil para sistemas de monitoreo y orquestación.
     """
+    from musica_api.database import engine
+    
+    # Verificar conexión a base de datos
+    try:
+        with engine.connect() as conn:
+            db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+    
     return {
         "status": "healthy",
-        # TODO: Agregar verificación de conexión a base de datos
-        # TODO: Agregar información sobre el sistema (uptime, memoria, etc.)
+        "database": db_status,
+        "environment": settings.environment,
     }
 
 
@@ -86,7 +110,9 @@ if __name__ == "__main__":
     import uvicorn
     
     uvicorn.run(
-        # TODO: Configurar el servidor uvicorn con los parámetros apropiados
+        "main:app",
+        host=settings.host,
+        port=settings.port,
+        reload=settings.debug,
+        log_level="info"
     )
-
-
