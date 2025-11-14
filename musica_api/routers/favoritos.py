@@ -4,7 +4,7 @@ Endpoints para CRUD de favoritos (relación usuario-canción).
 """
 
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel import Session, select
 
 from musica_api.database import get_session
@@ -122,4 +122,4 @@ def eliminar_favorito(
     
     session.delete(favorito)
     session.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

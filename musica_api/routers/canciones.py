@@ -4,7 +4,7 @@ Endpoints para CRUD de canciones y búsqueda.
 """
 
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
 from sqlmodel import Session, select, or_, col
 
 from musica_api.database import get_session
@@ -161,4 +161,4 @@ def eliminar_cancion(
     
     session.delete(cancion)
     session.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
