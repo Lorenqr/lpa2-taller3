@@ -11,8 +11,15 @@ sqlalchemy
 # Validación y utilidades
 python-multipart
 python-dotenv
+python-jose[cryptography]
+passlib[bcrypt]
 
 # Testing
 pytest
 pytest-asyncio
 httpx
+requests
+ruff
+black
+isort
+pre-commit
