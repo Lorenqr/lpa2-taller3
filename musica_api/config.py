@@ -35,6 +35,11 @@ class Settings(BaseSettings):
     # En desarrollo puedes usar ["*"], en producción especifica los orígenes permitidos
     cors_origins: list[str] = ["*"]
     
+    # Configuración de JWT
+    jwt_secret_key: str = "tu_clave_secreta_muy_segura_cambiar_en_produccion_123456789"
+    jwt_algorithm: str = "HS256"
+    jwt_expiration_minutes: int = 1440  # 24 horas
+    
     class Config:
         """
         Configuración de Pydantic Settings.

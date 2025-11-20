@@ -39,6 +39,9 @@ lpa2-taller3
    - id: Identificador único
    - nombre: Nombre del usuario
    - correo: Correo electrónico (único)
+   - contraseña_hash: Contraseña cifrada
+   - rol: Rol del usuario (usuario/administrador)
+   - activo: Estado del usuario
    - fecha_registro: Fecha de registro
 
 2. **Canción**:
@@ -96,32 +99,42 @@ lpa2-taller3
 
 ## Uso de la API
 
+### Autenticación
+
+- **Registrar usuario**: `POST /api/auth/register`
+- **Iniciar sesión**: `POST /api/auth/login`
+- **Iniciar sesión (JSON)**: `POST /api/auth/login-json`
+- **Ver perfil actual**: `GET /api/auth/me`
+- **Verificar token**: `GET /api/auth/verify`
+
+**Nota:** La mayoría de endpoints requieren autenticación. Incluye el token en el header: `Authorization: Bearer <token>`
+
 ### Usuarios
 
-- **Listar usuarios**: `GET /api/usuarios`
-- **Crear usuario**: `POST /api/usuarios`
-- **Obtener usuario**: `GET /api/usuarios/{id}`
-- **Actualizar usuario**: `PUT /api/usuarios/{id}`
-- **Eliminar usuario**: `DELETE /api/usuarios/{id}`
+- **Listar usuarios**: `GET /api/usuarios` (Solo administradores)
+- **Crear usuario**: `POST /api/usuarios` (Solo administradores)
+- **Obtener usuario**: `GET /api/usuarios/{id}` (Solo administradores)
+- **Actualizar usuario**: `PUT /api/usuarios/{id}` (Propio perfil o administradores)
+- **Eliminar usuario**: `DELETE /api/usuarios/{id}` (Solo administradores)
 
 ### Canciones
 
-- **Listar canciones**: `GET /api/canciones`
-- **Crear canción**: `POST /api/canciones`
-- **Obtener canción**: `GET /api/canciones/{id}`
-- **Actualizar canción**: `PUT /api/canciones/{id}`
-- **Eliminar canción**: `DELETE /api/canciones/{id}`
-- **Buscar canciones**: `GET /api/canciones/buscar?titulo=value&artista=value&genero=value`
+- **Listar canciones**: `GET /api/canciones` (Autenticación requerida)
+- **Crear canción**: `POST /api/canciones` (Autenticación requerida)
+- **Obtener canción**: `GET /api/canciones/{id}` (Autenticación requerida)
+- **Actualizar canción**: `PUT /api/canciones/{id}` (Autenticación requerida)
+- **Eliminar canción**: `DELETE /api/canciones/{id}` (Autenticación requerida)
+- **Buscar canciones**: `GET /api/canciones/buscar?titulo=value&artista=value&genero=value` (Autenticación requerida)
 
 ### Favoritos
 
-- **Listar favoritos**: `GET /api/favoritos`
-- **Marcar favorito**: `POST /api/favoritos`
-- **Obtener favorito**: `GET /api/favoritos/{id}`
-- **Eliminar favorito**: `DELETE /api/favoritos/{id}`
-- **Listar favoritos de usuario**: `GET /api/usuarios/{id}/favoritos`
-- **Marcar favorito específico**: `POST /api/usuarios/{id_usuario}/favoritos/{id_cancion}`
-- **Eliminar favorito específico**: `DELETE /api/usuarios/{id_usuario}/favoritos/{id_cancion}`
+- **Listar favoritos**: `GET /api/favoritos` (Propios o todos si es admin)
+- **Marcar favorito**: `POST /api/favoritos` (Propios o admin)
+- **Obtener favorito**: `GET /api/favoritos/{id}` (Propios o admin)
+- **Eliminar favorito**: `DELETE /api/favoritos/{id}` (Propios o admin)
+- **Listar favoritos de usuario**: `GET /api/usuarios/{id}/favoritos` (Propios o admin)
+- **Marcar favorito específico**: `POST /api/usuarios/{id_usuario}/favoritos/{id_cancion}` (Propios o admin)
+- **Eliminar favorito específico**: `DELETE /api/usuarios/{id_usuario}/favoritos/{id_cancion}` (Propios o admin)
 
 ## Desarrollo del Taller
 

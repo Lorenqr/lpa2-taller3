@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 import logging
 
 from musica_api.database import create_db_and_tables
-from musica_api.routers import usuarios, canciones, favoritos
+from musica_api.routers import usuarios, canciones, favoritos, auth
 from musica_api.config import settings
 
 
@@ -65,6 +65,7 @@ app.add_middleware(
 
 
 # Incluir los routers de la aplicación
+app.include_router(auth.router, prefix="/api/auth", tags=["Autenticación"])
 app.include_router(usuarios.router, prefix="/api/usuarios", tags=["Usuarios"])
 app.include_router(canciones.router, prefix="/api/canciones", tags=["Canciones"])
 app.include_router(favoritos.router, prefix="/api/favoritos", tags=["Favoritos"])

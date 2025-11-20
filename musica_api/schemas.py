@@ -9,6 +9,28 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 
+# ESQUEMAS: AUTENTICACIÓN
+
+class Token(BaseModel):
+    """Esquema de respuesta para el token JWT."""
+    access_token: str
+    token_type: str = "bearer"
+    rol: str
+
+
+class TokenData(BaseModel):
+    """Datos contenidos en el token JWT."""
+    correo: Optional[str] = None
+    rol: Optional[str] = None
+
+
+class LoginRequest(BaseModel):
+    """Esquema para la solicitud de login."""
+    correo: EmailStr = Field(description="Correo electrónico del usuario")
+    contraseña: str = Field(min_length=6, description="Contraseña del usuario")
+
+
+
 # ESQUEMAS: USUARIO
 
 class UsuarioBase(BaseModel):
@@ -19,18 +41,29 @@ class UsuarioBase(BaseModel):
 
 class UsuarioCreate(UsuarioBase):
     """Esquema para crear un Usuario."""
-    pass
+    contraseña: str = Field(min_length=6, description="Contraseña del usuario")
+    rol: Optional[str] = Field(default="usuario", description="Rol del usuario (usuario o administrador)")
+
+
+class UsuarioRegister(BaseModel):
+    """Esquema para registro público de usuarios (siempre rol usuario)."""
+    nombre: str = Field(min_length=2, max_length=100, description="Nombre del usuario")
+    correo: EmailStr = Field(description="Correo electrónico único del usuario")
+    contraseña: str = Field(min_length=6, description="Contraseña del usuario")
 
 
 class UsuarioUpdate(BaseModel):
     """Esquema para actualizar un Usuario (todos los campos opcionales)."""
     nombre: Optional[str] = Field(None, min_length=2, max_length=100)
     correo: Optional[EmailStr] = None
+    contraseña: Optional[str] = Field(None, min_length=6, description="Nueva contraseña (opcional)")
 
 
 class UsuarioRead(UsuarioBase):
     """Esquema para leer un Usuario (response)."""
     id: int
+    rol: str
+    activo: bool
     fecha_registro: datetime
     
     class Config:

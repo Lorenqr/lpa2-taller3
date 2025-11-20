@@ -8,8 +8,9 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status, Response
 from sqlmodel import Session, select, or_, col
 
 from musica_api.database import get_session
-from musica_api.models import Cancion
+from musica_api.models import Cancion, Usuario
 from musica_api.schemas import CancionCreate, CancionRead, CancionUpdate
+from musica_api.auth import obtener_usuario_actual
 
 router = APIRouter()
 
@@ -18,11 +19,14 @@ router = APIRouter()
 @router.get("/", response_model=List[CancionRead], summary="Listar todas las canciones")
 def listar_canciones(
     session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
     skip: int = 0,
     limit: int = 100
 ):
     """
     Obtiene una lista de todas las canciones en el catálogo.
+    
+    **Requiere autenticación (todos los usuarios)**
     
     - **skip**: Número de registros a saltar (para paginación)
     - **limit**: Número máximo de registros a retornar
@@ -35,10 +39,13 @@ def listar_canciones(
 @router.post("/", response_model=CancionRead, status_code=status.HTTP_201_CREATED, summary="Crear una nueva canción")
 def crear_cancion(
     cancion: CancionCreate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Crea una nueva canción en el catálogo.
+    
+    **Requiere autenticación (todos los usuarios)**
     
     - **titulo**: Título de la canción
     - **artista**: Nombre del artista o intérprete
@@ -59,10 +66,13 @@ def buscar_canciones(
     titulo: Optional[str] = Query(None, description="Buscar por título (parcial)"),
     artista: Optional[str] = Query(None, description="Buscar por artista (parcial)"),
     genero: Optional[str] = Query(None, description="Buscar por género (exacto)"),
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Busca canciones por título, artista o género.
+    
+    **Requiere autenticación (todos los usuarios)**
     
     - **titulo**: Búsqueda parcial en el título (case-insensitive)
     - **artista**: Búsqueda parcial en el artista (case-insensitive)
@@ -89,10 +99,13 @@ def buscar_canciones(
 @router.get("/{cancion_id}", response_model=CancionRead, summary="Obtener una canción por ID")
 def obtener_cancion(
     cancion_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Obtiene los datos de una canción específica por su ID.
+    
+    **Requiere autenticación (todos los usuarios)**
     
     - **cancion_id**: ID de la canción a buscar
     """
@@ -111,10 +124,13 @@ def obtener_cancion(
 def actualizar_cancion(
     cancion_id: int,
     cancion_update: CancionUpdate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Actualiza los datos de una canción existente.
+    
+    **Requiere autenticación (todos los usuarios)**
     
     - **cancion_id**: ID de la canción a actualizar
     - Todos los campos son opcionales
@@ -142,10 +158,13 @@ def actualizar_cancion(
 @router.delete("/{cancion_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Eliminar una canción")
 def eliminar_cancion(
     cancion_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Elimina una canción del catálogo.
+    
+    **Requiere autenticación (todos los usuarios)**
     
     - **cancion_id**: ID de la canción a eliminar
     

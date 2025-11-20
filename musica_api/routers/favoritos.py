@@ -8,8 +8,9 @@ from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel import Session, select
 
 from musica_api.database import get_session
-from musica_api.models import Favorito, Usuario, Cancion
+from musica_api.models import Favorito, Usuario, Cancion, RolUsuario
 from musica_api.schemas import FavoritoCreate, FavoritoRead, FavoritoConDetalles
+from musica_api.auth import obtener_usuario_actual, verificar_administrador
 
 router = APIRouter()
 
@@ -19,16 +20,24 @@ router = APIRouter()
 @router.get("/", response_model=List[FavoritoRead], summary="Listar todos los favoritos")
 def listar_favoritos(
     session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual),
     skip: int = 0,
     limit: int = 100
 ):
     """
-    Obtiene una lista de todos los favoritos registrados.
+    Obtiene una lista de favoritos.
+    
+    **Los usuarios regulares solo ven sus propios favoritos. Los administradores ven todos.**
     
     - **skip**: Número de registros a saltar (para paginación)
     - **limit**: Número máximo de registros a retornar
     """
     statement = select(Favorito).offset(skip).limit(limit)
+    
+    # Si es usuario regular, filtrar solo sus favoritos
+    if usuario_actual.rol != RolUsuario.ADMINISTRADOR:
+        statement = statement.where(Favorito.id_usuario == usuario_actual.id)
+    
     favoritos = session.exec(statement).all()
     return favoritos
 
@@ -36,14 +45,24 @@ def listar_favoritos(
 @router.post("/", response_model=FavoritoRead, status_code=status.HTTP_201_CREATED, summary="Marcar una canción como favorita")
 def crear_favorito(
     favorito: FavoritoCreate,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Marca una canción como favorita para un usuario.
     
+    **Los usuarios pueden marcar favoritos en su propia cuenta. Los administradores pueden marcar para cualquier usuario.**
+    
     - **id_usuario**: ID del usuario
     - **id_cancion**: ID de la canción a marcar como favorita
     """
+    # Verificar permisos: el usuario puede marcar sus propios favoritos o ser admin
+    if usuario_actual.rol != RolUsuario.ADMINISTRADOR and usuario_actual.id != favorito.id_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para marcar favoritos para otro usuario"
+        )
+    
     # Verificar que el usuario existe
     usuario = session.get(Usuario, favorito.id_usuario)
     if not usuario:
@@ -84,10 +103,13 @@ def crear_favorito(
 @router.get("/{favorito_id}", response_model=FavoritoConDetalles, summary="Obtener un favorito por ID")
 def obtener_favorito(
     favorito_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Obtiene los datos de un favorito específico por su ID, incluyendo detalles del usuario y canción.
+    
+    **Los usuarios pueden ver sus propios favoritos. Los administradores pueden ver cualquier favorito.**
     
     - **favorito_id**: ID del favorito a buscar
     """
@@ -99,16 +121,26 @@ def obtener_favorito(
             detail=f"Favorito con ID {favorito_id} no encontrado"
         )
     
+    # Verificar permisos
+    if usuario_actual.rol != RolUsuario.ADMINISTRADOR and usuario_actual.id != favorito.id_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para ver este favorito"
+        )
+    
     return favorito
 
 
 @router.delete("/{favorito_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Eliminar un favorito")
 def eliminar_favorito(
     favorito_id: int,
-    session: Session = Depends(get_session)
+    session: Session = Depends(get_session),
+    usuario_actual: Usuario = Depends(obtener_usuario_actual)
 ):
     """
     Elimina un favorito del sistema.
+    
+    **Los usuarios pueden eliminar sus propios favoritos. Los administradores pueden eliminar cualquier favorito.**
     
     - **favorito_id**: ID del favorito a eliminar
     """
@@ -118,6 +150,13 @@ def eliminar_favorito(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Favorito con ID {favorito_id} no encontrado"
+        )
+    
+    # Verificar permisos
+    if usuario_actual.rol != RolUsuario.ADMINISTRADOR and usuario_actual.id != favorito.id_usuario:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para eliminar este favorito"
         )
     
     session.delete(favorito)

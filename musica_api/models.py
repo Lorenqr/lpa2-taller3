@@ -6,6 +6,13 @@ Define las tablas de la base de datos usando SQLModel.
 from datetime import datetime
 from typing import Optional
 from sqlmodel import Field, SQLModel, Relationship
+from enum import Enum
+
+
+class RolUsuario(str, Enum):
+    """Roles disponibles en el sistema."""
+    ADMINISTRADOR = "administrador"
+    USUARIO = "usuario"
 
 
 # MODELO: USUARIO
@@ -20,6 +27,9 @@ class Usuario(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     nombre: str = Field(index=True, min_length=2, max_length=100)
     correo: str = Field(unique=True, index=True, max_length=255)
+    contraseña_hash: str = Field(description="Contraseña hasheada del usuario")
+    rol: str = Field(default=RolUsuario.USUARIO, description="Rol del usuario")
+    activo: bool = Field(default=True, description="Estado del usuario")
     fecha_registro: datetime = Field(default_factory=datetime.now)
     
     # Relación con Favoritos
@@ -29,7 +39,8 @@ class Usuario(SQLModel, table=True):
         json_schema_extra = {
             "example": {
                 "nombre": "Juan Pérez",
-                "correo": "juan.perez@example.com"
+                "correo": "juan.perez@example.com",
+                "rol": "usuario"
             }
         }
 

@@ -8,7 +8,6 @@ services:
       - "8000:8000"
     volumes:
       - ./musica.db:/app/musica.db
-      - ./musica_api.log:/app/musica_api.log
     environment:
       - DATABASE_URL=sqlite:///./musica.db
       - ENVIRONMENT=production
