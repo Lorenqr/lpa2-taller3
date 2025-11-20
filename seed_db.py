@@ -4,17 +4,21 @@ Ejecución: python seed_db.py
 """
 
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
+from passlib.context import CryptContext
 
 DB_PATH = "musica.db"
 
-# Solo nombre y correo (sin contraseña, ya que el modelo no la requiere)
+# Configurar bcrypt para hashear contraseñas
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Usuarios con contraseña (requerido para autenticación)
 usuarios = [
-    ("Ana Perez", "ana.perez@example.com"),
-    ("Carlos Ruiz", "carlos.ruiz@example.com"),
-    ("Maria Gomez", "maria.gomez@example.com"),
-    ("Jorge Herrera", "jorge.herrera@example.com"),
-    ("Lucia Torres", "lucia.torres@example.com"),
+    ("Ana Perez", "ana.perez@example.com", pwd_context.hash("password123"), "usuario", 1),
+    ("Carlos Ruiz", "carlos.ruiz@example.com", pwd_context.hash("password123"), "usuario", 1),
+    ("Maria Gomez", "maria.gomez@example.com", pwd_context.hash("password123"), "usuario", 1),
+    ("Jorge Herrera", "jorge.herrera@example.com", pwd_context.hash("password123"), "usuario", 1),
+    ("Lucia Torres", "lucia.torres@example.com", pwd_context.hash("password123"), "usuario", 1),
 ]
 
 canciones = [
@@ -48,23 +52,24 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
-    # Insertar usuarios (solo nombre, correo y fecha_registro)
-    usuarios_vals = [(u[0], u[1], datetime.utcnow().isoformat()) for u in usuarios]
+    # Insertar usuarios con contraseña, rol y activo
+    usuarios_vals = [(u[0], u[1], datetime.now(timezone.utc).isoformat(), u[2], u[3], u[4]) for u in usuarios]
     try:
         insert_if_not_exists(
             conn,
             "usuarios",
             "correo",
             usuarios_vals,
-            ["nombre", "correo", "fecha_registro"],
+            ["nombre", "correo", "fecha_registro", "contraseña_hash", "rol", "activo"],
         )
         print(f"✓ Usuarios insertados: {len(usuarios)}")
+        print("  Contraseña por defecto: password123")
     except Exception as e:
         print(f"✗ Error insertando usuarios: {e}")
 
     # Insertar canciones
     canciones_vals = [
-        (c[0], c[1], c[2], c[3], c[4], c[5], datetime.utcnow().isoformat())
+        (c[0], c[1], c[2], c[3], c[4], c[5], datetime.now(timezone.utc).isoformat())
         for c in canciones
     ]
     try:
