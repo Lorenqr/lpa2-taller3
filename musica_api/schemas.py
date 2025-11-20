@@ -78,8 +78,7 @@ class UsuarioRead(UsuarioBase):
     activo: bool
     fecha_registro: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 # ESQUEMAS: CANCIÓN
@@ -141,8 +140,7 @@ class CancionRead(CancionBase):
     id: int
     fecha_creacion: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 # ESQUEMAS: FAVORITO
@@ -167,8 +165,7 @@ class FavoritoRead(FavoritoBase):
     id: int
     fecha_marcado: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
 
 
 class FavoritoConDetalles(BaseModel):
@@ -179,5 +176,4 @@ class FavoritoConDetalles(BaseModel):
     usuario: UsuarioRead
     cancion: CancionRead
 
-    class Config:
-        from_attributes = True
+    model_config = {"from_attributes": True}
