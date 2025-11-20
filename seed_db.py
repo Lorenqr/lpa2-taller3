@@ -2,6 +2,7 @@
 Script para añadir 5 usuarios y 10 canciones a musica.db.
 Ejecución: python seed_db.py
 """
+
 import sqlite3
 from datetime import datetime
 
@@ -29,6 +30,7 @@ canciones = [
     ("Cancion 10", "Artista I", "Album R", 175, 2023, "Indie"),
 ]
 
+
 def insert_if_not_exists(conn, table, unique_col, values, cols):
     cur = conn.cursor()
     placeholders = ",".join("?" for _ in cols)
@@ -41,6 +43,7 @@ def insert_if_not_exists(conn, table, unique_col, values, cols):
             )
     conn.commit()
 
+
 def main():
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
@@ -48,15 +51,38 @@ def main():
     # Insertar usuarios (solo nombre, correo y fecha_registro)
     usuarios_vals = [(u[0], u[1], datetime.utcnow().isoformat()) for u in usuarios]
     try:
-        insert_if_not_exists(conn, "usuarios", "correo", usuarios_vals, ["nombre", "correo", "fecha_registro"])
+        insert_if_not_exists(
+            conn,
+            "usuarios",
+            "correo",
+            usuarios_vals,
+            ["nombre", "correo", "fecha_registro"],
+        )
         print(f"✓ Usuarios insertados: {len(usuarios)}")
     except Exception as e:
         print(f"✗ Error insertando usuarios: {e}")
 
     # Insertar canciones
-    canciones_vals = [(c[0], c[1], c[2], c[3], c[4], c[5], datetime.utcnow().isoformat()) for c in canciones]
+    canciones_vals = [
+        (c[0], c[1], c[2], c[3], c[4], c[5], datetime.utcnow().isoformat())
+        for c in canciones
+    ]
     try:
-        insert_if_not_exists(conn, "canciones", "titulo", canciones_vals, ["titulo", "artista", "album", "duracion", "año", "genero", "fecha_creacion"])
+        insert_if_not_exists(
+            conn,
+            "canciones",
+            "titulo",
+            canciones_vals,
+            [
+                "titulo",
+                "artista",
+                "album",
+                "duracion",
+                "año",
+                "genero",
+                "fecha_creacion",
+            ],
+        )
         print(f"✓ Canciones insertadas: {len(canciones)}")
     except Exception as e:
         print(f"✗ Error insertando canciones: {e}")
@@ -66,12 +92,15 @@ def main():
     total_usuarios = cur.fetchone()[0]
     cur.execute("SELECT COUNT(*) FROM canciones")
     total_canciones = cur.fetchone()[0]
-    
+
     conn.close()
-    print(f"\n📊 Totales en la base de datos:")
+    print("\n📊 Totales en la base de datos:")
     print(f"   - Usuarios: {total_usuarios}")
     print(f"   - Canciones: {total_canciones}")
-    print("\n✅ Seed completo. Puedes verificar con: sqlite3 musica.db 'SELECT * FROM usuarios;'")
+    print(
+        "\n✅ Seed completo. Puedes verificar con: sqlite3 musica.db 'SELECT * FROM usuarios;'"
+    )
+
 
 if __name__ == "__main__":
     main()

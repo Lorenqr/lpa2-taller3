@@ -10,12 +10,12 @@ from musica_api.config import get_settings
 settings = get_settings()
 
 # Crear el engine de la base de datos
-connect_args = {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+connect_args = (
+    {"check_same_thread": False} if settings.database_url.startswith("sqlite") else {}
+)
 
 engine = create_engine(
-    settings.database_url,
-    echo=settings.debug,
-    connect_args=connect_args
+    settings.database_url, echo=settings.debug, connect_args=connect_args
 )
 
 
@@ -31,7 +31,7 @@ def get_session():
     """
     Generador de sesiones de base de datos.
     Se usa como dependencia en FastAPI.
-    
+
     Yields:
         Session: Sesión de base de datos
     """

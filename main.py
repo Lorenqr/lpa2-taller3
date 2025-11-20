@@ -11,11 +11,8 @@ from musica_api.config import settings
 # Configuración de logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('musica_api.log')
-    ]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("musica_api.log")],
 )
 logger = logging.getLogger(__name__)
 
@@ -31,7 +28,7 @@ async def lifespan(app: FastAPI):
     create_db_and_tables()
     logger.info("Base de datos inicializada correctamente")
     yield
-    
+
     # Shutdown: Limpiar recursos si es necesario
     logger.info("Cerrando aplicación...")
     print("cerrando aplicación...")
@@ -83,15 +80,12 @@ async def root():
         "nombre": settings.app_name,
         "version": settings.app_version,
         "descripcion": "API RESTful para gestionar usuarios, canciones y favoritos",
-        "documentacion": {
-            "swagger": "/docs",
-            "redoc": "/redoc"
-        },
+        "documentacion": {"swagger": "/docs", "redoc": "/redoc"},
         "endpoints": {
             "usuarios": "/api/usuarios",
             "canciones": "/api/canciones",
-            "favoritos": "/api/favoritos"
-        }
+            "favoritos": "/api/favoritos",
+        },
     }
 
 
@@ -103,14 +97,14 @@ async def health_check():
     Útil para sistemas de monitoreo y orquestación.
     """
     from musica_api.database import engine
-    
+
     # Verificar conexión a base de datos
     try:
-        with engine.connect() as conn:
+        with engine.connect():
             db_status = "connected"
     except Exception as e:
         db_status = f"error: {str(e)}"
-    
+
     return {
         "status": "healthy",
         "database": db_status,
@@ -120,11 +114,11 @@ async def health_check():
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     uvicorn.run(
         "main:app",
         host=settings.host,
         port=settings.port,
         reload=settings.debug,
-        log_level="info"
+        log_level="info",
     )
