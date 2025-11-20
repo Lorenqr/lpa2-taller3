@@ -13,9 +13,6 @@ from musica_api.database import get_session
 from musica_api.models import Usuario, Cancion, Favorito
 
 
-# =============================================================================
-# CONFIGURACIÓN DE FIXTURES
-# =============================================================================
 
 @pytest.fixture(name="session")
 def session_fixture():
@@ -87,9 +84,8 @@ def cancion_test_fixture(session: Session):
     return cancion
 
 
-# =============================================================================
+
 # TESTS DE USUARIOS
-# =============================================================================
 
 class TestUsuarios:
     """Tests para los endpoints de usuarios."""
@@ -156,9 +152,8 @@ class TestUsuarios:
         assert response.status_code == 404
 
 
-# =============================================================================
+
 # TESTS DE CANCIONES
-# =============================================================================
 
 class TestCanciones:
     """Tests para los endpoints de canciones."""
@@ -239,9 +234,7 @@ class TestCanciones:
         assert len(data) > 0
 
 
-# =============================================================================
 # TESTS DE FAVORITOS
-# =============================================================================
 
 class TestFavoritos:
     """Tests para los endpoints de favoritos."""
@@ -346,9 +339,7 @@ class TestFavoritos:
         assert len(data) > 0
 
 
-# =============================================================================
 # TESTS DE INTEGRACIÓN
-# =============================================================================
 
 class TestIntegracion:
     """Tests de integración que prueban flujos completos."""
@@ -386,9 +377,7 @@ class TestIntegracion:
         assert favoritos[0]["titulo"] == "Canción Flujo"
 
 
-# =============================================================================
 # TESTS DE VALIDACIÓN
-# =============================================================================
 
 class TestValidacion:
     """Tests para validaciones de datos."""
@@ -407,7 +396,7 @@ class TestValidacion:
             "titulo": "Canción Test",
             "artista": "Artista Test",
             "duracion": 180,
-            "año": 3000,  # Año en el futuro lejano
+            "año": 3000,
             "genero": "Rock"
         })
         assert response.status_code == 422

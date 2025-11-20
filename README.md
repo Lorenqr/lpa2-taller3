@@ -1,3 +1,7 @@
+
+Lorena Quiñones Rodriguez
+https://github.com/Lorenqr/lpa2-taller3.git
+
 # API de Música
 
 Una [API RESTful](https://aws.amazon.com/es/what-is/restful-api/) para gestionar usuarios, canciones y favoritos. Desarrollada con [FastAPI](https://fastapi.tiangolo.com/), [SQLModel](https://sqlmodel.tiangolo.com/) y [Pydantic](https://docs.pydantic.dev/).
