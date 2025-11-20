@@ -8,9 +8,8 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
-# =============================================================================
+
 # ESQUEMAS: USUARIO
-# =============================================================================
 
 class UsuarioBase(BaseModel):
     """Esquema base para Usuario."""
@@ -38,9 +37,8 @@ class UsuarioRead(UsuarioBase):
         from_attributes = True
 
 
-# =============================================================================
+
 # ESQUEMAS: CANCIÓN
-# =============================================================================
 
 class CancionBase(BaseModel):
     """Esquema base para Canción."""
@@ -96,9 +94,8 @@ class CancionRead(CancionBase):
         from_attributes = True
 
 
-# =============================================================================
+
 # ESQUEMAS: FAVORITO
-# =============================================================================
 
 class FavoritoBase(BaseModel):
     """Esquema base para Favorito."""

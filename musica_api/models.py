@@ -8,9 +8,7 @@ from typing import Optional
 from sqlmodel import Field, SQLModel, Relationship
 
 
-# =============================================================================
 # MODELO: USUARIO
-# =============================================================================
 
 class Usuario(SQLModel, table=True):
     """
@@ -36,9 +34,7 @@ class Usuario(SQLModel, table=True):
         }
 
 
-# =============================================================================
 # MODELO: CANCIÓN
-# =============================================================================
 
 class Cancion(SQLModel, table=True):
     """
@@ -72,9 +68,8 @@ class Cancion(SQLModel, table=True):
         }
 
 
-# =============================================================================
+
 # MODELO: FAVORITO
-# =============================================================================
 
 class Favorito(SQLModel, table=True):
     """

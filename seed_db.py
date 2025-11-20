@@ -53,7 +53,7 @@ def main():
     except Exception as e:
         print(f"✗ Error insertando usuarios: {e}")
 
-    # Insertar canciones (usando 'año' con ñ, no 'anio')
+    # Insertar canciones
     canciones_vals = [(c[0], c[1], c[2], c[3], c[4], c[5], datetime.utcnow().isoformat()) for c in canciones]
     try:
         insert_if_not_exists(conn, "canciones", "titulo", canciones_vals, ["titulo", "artista", "album", "duracion", "año", "genero", "fecha_creacion"])
