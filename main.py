@@ -1,10 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import logging
 
 from musica_api.database import create_db_and_tables
 from musica_api.routers import usuarios, canciones, favoritos
 from musica_api.config import settings
+
+
+# Configuración de logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('musica_api.log')
+    ]
+)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -14,10 +27,13 @@ async def lifespan(app: FastAPI):
     Se ejecuta al iniciar y al cerrar la aplicación.
     """
     # Startup: Crear tablas en la base de datos
+    logger.info("Iniciando aplicación API de Música...")
     create_db_and_tables()
+    logger.info("Base de datos inicializada correctamente")
     yield
     
     # Shutdown: Limpiar recursos si es necesario
+    logger.info("Cerrando aplicación...")
     print("cerrando aplicación...")
 
 
@@ -61,6 +77,7 @@ async def root():
     Endpoint raíz de la API.
     Retorna información básica y enlaces a la documentación.
     """
+    logger.info("Acceso al endpoint raíz")
     return {
         "nombre": settings.app_name,
         "version": settings.app_version,

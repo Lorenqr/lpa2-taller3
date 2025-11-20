@@ -4,17 +4,16 @@ Ejecución: python seed_db.py
 """
 import sqlite3
 from datetime import datetime
-from passlib.context import CryptContext
 
-pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 DB_PATH = "musica.db"
 
+# Solo nombre y correo (sin contraseña, ya que el modelo no la requiere)
 usuarios = [
-    ("Ana Perez", "ana.perez@example.com", "pass1234"),
-    ("Carlos Ruiz", "carlos.ruiz@example.com", "pass1234"),
-    ("Maria Gomez", "maria.gomez@example.com", "pass1234"),
-    ("Jorge Herrera", "jorge.herrera@example.com", "pass1234"),
-    ("Lucia Torres", "lucia.torres@example.com", "pass1234"),
+    ("Ana Perez", "ana.perez@example.com"),
+    ("Carlos Ruiz", "carlos.ruiz@example.com"),
+    ("Maria Gomez", "maria.gomez@example.com"),
+    ("Jorge Herrera", "jorge.herrera@example.com"),
+    ("Lucia Torres", "lucia.torres@example.com"),
 ]
 
 canciones = [
@@ -46,21 +45,33 @@ def main():
     conn = sqlite3.connect(DB_PATH)
     cur = conn.cursor()
 
-    # Ajusta nombres de columnas según tu esquema real si difieren
-    usuarios_vals = [(u[0], u[1], datetime.utcnow().isoformat(), pwd.hash(u[2])) for u in usuarios]
+    # Insertar usuarios (solo nombre, correo y fecha_registro)
+    usuarios_vals = [(u[0], u[1], datetime.utcnow().isoformat()) for u in usuarios]
     try:
-        insert_if_not_exists(conn, "usuarios", "correo", usuarios_vals, ["nombre", "correo", "fecha_registro", "hashed_password"])
+        insert_if_not_exists(conn, "usuarios", "correo", usuarios_vals, ["nombre", "correo", "fecha_registro"])
+        print(f"✓ Usuarios insertados: {len(usuarios)}")
     except Exception as e:
-        print("Error insertando usuarios:", e)
+        print(f"✗ Error insertando usuarios: {e}")
 
+    # Insertar canciones (usando 'año' con ñ, no 'anio')
     canciones_vals = [(c[0], c[1], c[2], c[3], c[4], c[5], datetime.utcnow().isoformat()) for c in canciones]
     try:
-        insert_if_not_exists(conn, "canciones", "titulo", canciones_vals, ["titulo", "artista", "album", "duracion", "anio", "genero", "fecha_creacion"])
+        insert_if_not_exists(conn, "canciones", "titulo", canciones_vals, ["titulo", "artista", "album", "duracion", "año", "genero", "fecha_creacion"])
+        print(f"✓ Canciones insertadas: {len(canciones)}")
     except Exception as e:
-        print("Error insertando canciones:", e)
+        print(f"✗ Error insertando canciones: {e}")
 
+    # Verificar totales
+    cur.execute("SELECT COUNT(*) FROM usuarios")
+    total_usuarios = cur.fetchone()[0]
+    cur.execute("SELECT COUNT(*) FROM canciones")
+    total_canciones = cur.fetchone()[0]
+    
     conn.close()
-    print("Seed completo. Revisa la base de datos con DBeaver o sqlite3.")
+    print(f"\n📊 Totales en la base de datos:")
+    print(f"   - Usuarios: {total_usuarios}")
+    print(f"   - Canciones: {total_canciones}")
+    print("\n✅ Seed completo. Puedes verificar con: sqlite3 musica.db 'SELECT * FROM usuarios;'")
 
 if __name__ == "__main__":
     main()
